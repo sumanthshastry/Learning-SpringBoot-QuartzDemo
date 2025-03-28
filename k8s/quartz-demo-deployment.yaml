@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quartz-postgres-service
+  labels:
+    app: quartz-postgres-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quartz-postgres-service
+  template:
+    metadata:
+      name: quartz-postgres-service
+      labels:
+        app: quartz-postgres-service
+    spec:
+      containers:
+        - name: quartz-postgres-service
+          image: postgres:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: quartz-postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+              claimName: quartz-postgres-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quartz-demo
+  labels:
+    app: quartz-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quartz-demo
+  template:
+    metadata:
+      name: quartz-demo
+      labels:
+          app: quartz-demo
+    spec:
+      containers:
+        - name: quartz-demo
+          image: quartz-demo:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              protocol: TCP

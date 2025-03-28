@@ -1,0 +1,40 @@
+spring:
+  application:
+    name=QuartzDemo
+  datasource:
+    url: jdbc:postgresql://quartz-postgres-service:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    properties:
+      org:
+        quartz:
+          jobStore:
+            clusterCheckinInterval: 20000
+            misfireThreshold: 60000
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+          scheduler:
+            instanceName: quartz-demo
+            instanceId: AUTO
+          threadPool:
+            threadCount: 10
+            threadPriority: 5
+            class: org.quartz.simpl.SimpleThreadPool
+
+app:
+  scheduling:
+    oneMinuteJob:
+      cron: "0 0/1 * * * ? *" # Cron expression to run every minute
+      start-delay-millis: 10000 # Start the job after the configured delay
+    thirtySecondJob:
+      fixed-delay: 30000 # Run/Repeat the job every 30 seconds
+      start-delay-millis: 20000
